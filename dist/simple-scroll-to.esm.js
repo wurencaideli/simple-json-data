@@ -1,5 +1,5 @@
 /*!
- * simple-json-db v0.0.1
+ * simple-json-data v0.0.1
  * Copyright 2025 wuzhanggui https://github.com/wurencaideli
  * Licensed under MIT
  */
@@ -78,4 +78,4 @@ class n {
         'function' != typeof requestAnimationFrame ? clearTimeout(t) : cancelAnimationFrame(t);
     });
 export { n as SimpleScrollTo };
-//# sourceMappingURL=simple-json-db.esm.js.map
+//# sourceMappingURL=simple-json-data.esm.js.map

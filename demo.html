@@ -1,13 +1,13 @@
 <!DOCTYPE >
 <html>
     <head>
-        <title>simple-json-db demo</title>
+        <title>simple-json-data demo</title>
         <meta
             name="viewport"
             content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1"
         />
-        <link rel="stylesheet" href="./dist/simple-json-db.umd.js" />
-        <script src="./dist/simple-json-db.umd.js"></script>
+        <link rel="stylesheet" href="./dist/simple-json-data.umd.js" />
+        <script src="./dist/simple-json-data.umd.js"></script>
         <style>
             body {
                 font-size: 12px;
@@ -32,7 +32,7 @@
                 // 三次缓入缓出
                 const easeInOutCubic = (t) =>
                     t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
-                const { SimpleScrollTo } = window['simple-json-db'];
+                const { SimpleScrollTo } = window['simple-json-data'];
                 const dsInstance = new SimpleScrollTo({
                     isX: false,
                     start: window.scrollY,
@@ -64,9 +64,9 @@
     </head>
 
     <body>
-        <div id="simple-json-db-demo" class="simple-json-db-demo">
+        <div id="simple-json-data-demo" class="simple-json-data-demo">
             <div class="container">
-                <h1 class="title">simple-json-db demo</h1>
+                <h1 class="title">simple-json-data demo</h1>
                 <div>
                     <h3 style="width: 250vw">测试</h3>
                     <h3>测试</h3>

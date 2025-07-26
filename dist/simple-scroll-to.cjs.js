@@ -1,5 +1,5 @@
 /*!
- * simple-json-db v0.0.1
+ * simple-json-data v0.0.1
  * Copyright 2025 wuzhanggui https://github.com/wurencaideli
  * Licensed under MIT
  */
@@ -78,4 +78,4 @@ var i, s, a, e;
             t(this, i, 'm', e).call(this, this.taskNumber);
         }
     });
-//# sourceMappingURL=simple-json-db.cjs.js.map
+//# sourceMappingURL=simple-json-data.cjs.js.map

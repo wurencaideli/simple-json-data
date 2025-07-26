@@ -1,5 +1,5 @@
 {
-    "name": "simple-json-db",
+    "name": "simple-json-data",
     "version": "0.0.1",
     "description": "A simple json data store.",
     "author": "wuzhanggui",
@@ -8,21 +8,21 @@
     "keywords": [
         "completing attributes"
     ],
-    "homepage": "https://github.com/wurencaideli/simple-json-db",
+    "homepage": "https://github.com/wurencaideli/simple-json-data",
     "repository": {
         "type": "git",
-        "url": "https://github.com/wurencaideli/simple-json-db"
+        "url": "https://github.com/wurencaideli/simple-json-data"
     },
     "bugs": {
-        "url": "https://github.com/wurencaideli/simple-json-db/issues"
+        "url": "https://github.com/wurencaideli/simple-json-data/issues"
     },
     "jspm": {
-        "main": "dist/simple-json-db.cjs.js",
+        "main": "dist/simple-json-data.cjs.js",
         "registry": "jspm"
     },
-    "main": "dist/simple-json-db.cjs.js",
-    "module": "dist/simple-json-db.esm.js",
-    "types": "dict/simple-json-db.d.ts",
+    "main": "dist/simple-json-data.cjs.js",
+    "module": "dist/simple-json-data.esm.js",
+    "types": "dict/simple-json-data.d.ts",
     "files": [
         "dist",
         "src"

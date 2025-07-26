@@ -1,5 +1,5 @@
 /*!
- * simple-json-db v0.0.1
+ * simple-json-data v0.0.1
  * Copyright 2025 wuzhanggui https://github.com/wurencaideli
  * Licensed under MIT
  */
@@ -9,7 +9,7 @@
         : 'function' == typeof define && define.amd
         ? define(['exports'], i)
         : i(
-              ((t = 'undefined' != typeof globalThis ? globalThis : t || self)['simple-json-db'] =
+              ((t = 'undefined' != typeof globalThis ? globalThis : t || self)['simple-json-data'] =
                   {}),
           );
 })(this, function (t) {
@@ -89,4 +89,4 @@
             }
         });
 });
-//# sourceMappingURL=simple-json-db.umd.js.map
+//# sourceMappingURL=simple-json-data.umd.js.map

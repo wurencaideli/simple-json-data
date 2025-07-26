@@ -13,17 +13,17 @@ function resolvePath(path_) {
     return path.join(__dirname, path_);
 }
 
-const name = 'simple-json-db';
+const name = 'simple-json-data';
 const version = packageJson.version;
 const banner = `/*!
- * simple-json-db v${version}
+ * simple-json-data v${version}
  * Copyright ${new Date().getFullYear()} wuzhanggui https://github.com/wurencaideli
  * Licensed under MIT
  */
 `;
 
 export default {
-    input: resolvePath('./src/simple-json-db.ts'),
+    input: resolvePath('./src/simple-json-data.ts'),
     output: [
         {
             file: resolvePath(`./dist/${name}.esm.js`),
