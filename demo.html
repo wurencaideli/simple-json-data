@@ -1,0 +1,107 @@
+<!DOCTYPE >
+<html>
+    <head>
+        <title>simple-json-db demo</title>
+        <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1"
+        />
+        <link rel="stylesheet" href="./dist/simple-json-db.umd.js" />
+        <script src="./dist/simple-json-db.umd.js"></script>
+        <style>
+            body {
+                font-size: 12px;
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+        <script>
+            window.addEventListener('DOMContentLoaded', function () {
+                // 线性
+                const linear = (t) => t;
+                // 二次缓入
+                const easeInQuad = (t) => t * t;
+                // 二次缓出
+                const easeOutQuad = (t) => t * (2 - t);
+                // 二次缓入缓出
+                const easeInOutQuad = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+                // 三次缓入
+                const easeInCubic = (t) => t * t * t;
+                // 三次缓出
+                const easeOutCubic = (t) => --t * t * t + 1;
+                // 三次缓入缓出
+                const easeInOutCubic = (t) =>
+                    t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+                const { SimpleScrollTo } = window['simple-json-db'];
+                const dsInstance = new SimpleScrollTo({
+                    isX: false,
+                    start: window.scrollY,
+                    end: window.scrollY + 1200,
+                    duration: 700,
+                    animation: easeInOutCubic,
+                    callback() {
+                        console.log('滚动结束');
+                    },
+                });
+                const dsInstance_1 = new SimpleScrollTo({
+                    isX: true,
+                    start: window.scrollX,
+                    end: window.scrollX + 200,
+                    duration: 150,
+                });
+                setTimeout(() => {
+                    dsInstance_1.cancel();
+                }, 700);
+                const dsInstance_2 = new SimpleScrollTo({
+                    target: document.getElementById('target'),
+                    isX: true,
+                    start: window.scrollX,
+                    end: window.scrollX + 200,
+                    duration: 150,
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <div id="simple-json-db-demo" class="simple-json-db-demo">
+            <div class="container">
+                <h1 class="title">simple-json-db demo</h1>
+                <div>
+                    <h3 style="width: 250vw">测试</h3>
+                    <h3>测试</h3>
+                    <div id="target" style="width: 200px; overflow: auto">
+                        测试
+                        <h3 style="width: 250vw">测试</h3>
+                    </div>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3 style="height: 150vh">测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3 style="height: 150vh">测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3 style="height: 150vh">测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                    <h3>测试</h3>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
