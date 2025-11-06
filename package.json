@@ -1,6 +1,7 @@
 {
+    "$schema": "https://json.schemastore.org/tsconfig",
     "name": "simple-json-data",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "A simple json data store.",
     "author": "wuzhanggui",
     "license": "MIT",
@@ -23,13 +24,21 @@
     "main": "dist/simple-json-data.cjs.js",
     "module": "dist/simple-json-data.esm.js",
     "types": "dict/simple-json-data.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/simple-json-data.d.ts",
+            "import": "./dist/simple-json-data.esm.js",
+            "require": "./dist/simple-json-data.cjs.js"
+        }
+    },
     "files": [
         "dist",
         "src"
     ],
     "scripts": {
         "dev": "rollup -c -w",
-        "build": "rollup -c"
+        "build": "rollup -c",
+        "test": "node demo.js"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^28.0.6",
@@ -42,6 +51,8 @@
         "typescript": "^5.8.3"
     },
     "dependencies": {
+        "fast-sort": "^3.4.1",
+        "fuse.js": "^7.1.0",
         "uuid": "^11.1.0"
     }
 }
