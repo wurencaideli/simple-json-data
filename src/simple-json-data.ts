@@ -1,187 +1,148 @@
+import { v4 as createUId } from 'uuid';
+import { promises as fs } from 'fs';
+
+import { completionData, SerialQueue, deepCopy } from './common.js';
+
+export type Config = {
+    idKey?: string;
+};
 /**
  * 简单的json数据库，数据必须以数组存在，适用于小量数据
+ * 数据都是读取到内存中作为缓存操作，读写速度较快，又外部操作写入文件
+ * 外部获取都是复制的，防止数据在未知情况下窜改
  */
-import { v4 as uuidv4 } from 'uuid';
-import { promises as fs } from 'fs';
-import Fuse from 'fuse.js';
-import { sort } from 'fast-sort';
-type SearchOption = {
-    page: number;
-    size: number;
-    sortBy?: any;
-    searchBy?: any;
-    fuseOptions?: any;
-    filterFn?: any;
-};
-/** 深度复制一个对象 */
-function deepCopy(data: any) {
-    return JSON.parse(JSON.stringify(data));
-}
-/** 按照配置格式化一个实例数据 */
-function completionData(data: any, config: any) {
-    const data_: any = {};
-    const configKeys = Object.keys(config);
-    configKeys.forEach((key) => {
-        if (data.hasOwnProperty(key) && data[key] !== undefined) {
-            data_[key] = data[key];
-            return;
-        }
-        const keyConfig = config[key];
-        if (typeof keyConfig.default == 'function') {
-            data_[key] = keyConfig.default();
-        } else {
-            data_[key] = keyConfig.default;
-        }
-    });
-    return data_;
-}
-
 export class SimpleJsonData {
     jsonPath = '';
-    config: any = {};
+    keyConfig: any = {};
     isError = false;
-    isInited = false;
-    #list__local__: any = [];
-    constructor(jsonPath: string, config: any) {
+    isInitialized = false;
+    queueInstance: SerialQueue;
+    #list: any = [];
+    #idKey: string = 'id__local__';
+    constructor(jsonPath: string, keyConfig: any, config?: Config) {
+        if (config?.idKey) {
+            this.#idKey = config.idKey;
+        }
+        this.queueInstance = new SerialQueue();
         this.jsonPath = jsonPath;
-        this.config = Object.assign({}, config);
-        this.config['id__local__'] = {
+        this.keyConfig = Object.assign({}, keyConfig);
+        this.keyConfig[this.#idKey] = {
             default: () => {
-                return uuidv4();
+                return createUId();
             },
         };
     }
     /** 从本地提取数据 */
     async init() {
-        try {
-            const listContent = await fs.readFile(this.jsonPath, 'utf8');
-            let list: any = JSON.parse(listContent);
-            if (!Array.isArray(list)) {
-                throw 'data is not an array json string.';
+        const taskRes = await this.queueInstance.push(async () => {
+            try {
+                let list: any = [];
+                const fileExists = await fs
+                    .access(this.jsonPath)
+                    .then(() => true)
+                    .catch(() => false);
+                if (!fileExists) {
+                    await fs.writeFile(this.jsonPath, '[]', 'utf8');
+                    list = [];
+                } else {
+                    const listContent = await fs
+                        .readFile(this.jsonPath, 'utf8')
+                        .then((c) => c.trim());
+                    if (listContent === '') {
+                        await fs.writeFile(this.jsonPath, '[]', 'utf8');
+                        list = [];
+                    } else {
+                        list = JSON.parse(listContent);
+                        if (!Array.isArray(list)) {
+                            throw 'ERROR: Data is not an array json string.';
+                        }
+                        list = list.map((item) => {
+                            return completionData(item, this.keyConfig);
+                        });
+                    }
+                }
+                this.#list = list;
+                this.isError = false;
+                this.isInitialized = true;
+                return deepCopy(list);
+            } catch (error) {
+                this.isError = true;
+                throw error;
             }
-            list = list.map((item) => {
-                return completionData(item, this.config);
-            });
-            this.#list__local__ = list;
-            this.isError = false;
-            this.isInited = true;
-        } catch (error) {
-            this.isError = true;
-            throw error;
-        }
+        });
+        return taskRes;
     }
-    /** 写入文件 */
+    /** 写入文件，由外部手动操作写入 */
     async save() {
-        if (!this.isInited) {
-            throw 'Instance data is not initialized';
-        }
-        if (this.isError) {
-            throw 'The instance data is corrupted';
-        }
-        return fs.writeFile(this.jsonPath, JSON.stringify(this.#list__local__, null, 2), 'utf8');
+        const taskRes = await this.queueInstance.push(async () => {
+            if (!this.isInitialized) {
+                throw 'ERROR: Instance data is not initialized';
+            }
+            if (this.isError) {
+                throw 'ERROR: The instance data is corrupted';
+            }
+            return fs.writeFile(this.jsonPath, JSON.stringify(this.#list, null, 2), 'utf8');
+        });
+        return taskRes;
     }
-    /** 返回数据列表，可外部传入参数进行筛选 */
-    list(optios: SearchOption) {
-        optios = optios || {};
-        const page = optios.page || 1;
-        const size = optios.size || 15;
-        const filterFn = optios.filterFn;
-        const sortBy = optios.sortBy;
-        const searchBy = optios.searchBy;
-        const fuseOptions = optios.fuseOptions;
-        let list = this.#list__local__;
-        let star = (page - 1) * size;
-        let end = star + size;
-        // 优先手动过滤
-        if (filterFn) {
-            list = list.filter((item: any) => {
-                return filterFn(item);
-            });
-        }
-        if (
-            (typeof searchBy === 'object' && Object.keys(searchBy).length > 0) ||
-            (searchBy && typeof searchBy === 'string')
-        ) {
-            const fuse = new Fuse(list, fuseOptions);
-            list = fuse.search(searchBy).map((item) => item.item);
-        }
-        /** 然后进行排序 */
-        if (sortBy && sortBy.length >= 1) {
-            list = sort(list).by(sortBy);
-        }
-        return {
-            list: deepCopy(list.slice(star, end)),
-            total: list.length,
-            page,
-            size,
-        };
+    /** 返回数据列表 */
+    list() {
+        const list = this.#list;
+        return deepCopy(list);
     }
     /** 查找单个实例 */
     find(fn?: any) {
         if (typeof fn !== 'function') return;
-        const target = this.#list__local__.find((item: any) => {
-            return fn(item);
-        });
-        return target ? deepCopy(target) : undefined;
+        const list = this.list();
+        return list.find(fn);
     }
     /** 统计 */
     count(fn?: any): number {
-        if (typeof fn !== 'function') return this.#list__local__.length;
-        return this.#list__local__.filter((item: any) => {
-            return fn(item);
-        }).length;
+        if (typeof fn !== 'function') return this.#list.length;
+        const list = this.list();
+        return list.filter(fn).length;
     }
     /** 删除第一个 */
     shift() {
-        const target = this.#list__local__.shift();
+        const target = this.#list.shift();
         return target ? deepCopy(target) : undefined;
     }
     /** 删除最后一个 */
     pop() {
-        const target = this.#list__local__.pop();
+        const target = this.#list.pop();
         return target ? deepCopy(target) : undefined;
-    }
-    /** 内部排序 */
-    sort(fn: any) {
-        if (typeof fn !== 'function') return;
-        return deepCopy(this.#list__local__.sort(fn));
     }
     /** 直接写入新的list */
     setList(list: any) {
         list = list.map((item: any) => {
-            return completionData(item, this.config);
+            return completionData(item, this.keyConfig);
         });
-        this.#list__local__ = deepCopy(list);
+        this.#list = deepCopy(list);
     }
     /** 数据过滤 */
     filter(fn: any) {
         if (typeof fn !== 'function') return;
-        return deepCopy(
-            this.#list__local__.filter((item: any) => {
-                return fn(item);
-            }),
-        );
+        const list = this.list();
+        return list.filter(fn);
     }
     /** 添加一个数据 */
     add(data: any) {
-        if (this.#list__local__.find((item: any) => item.id__local__ === data.id__local__)) {
+        if (this.#list.find((item: any) => item[this.#idKey] === data[this.#idKey])) {
             throw 'ERROR: Repeating Instances';
         }
-        data = completionData(data, this.config);
+        data = completionData(data, this.keyConfig);
         data = deepCopy(data);
-        this.#list__local__.push(data);
+        this.#list.push(data);
     }
     /** 更新一个数据 */
     update(instance: any, data: any) {
-        let target = this.#list__local__.find(
-            (item: any) => item.id__local__ == instance.id__local__,
-        );
+        const target = this.#list.find((item: any) => item[this.#idKey] == instance[this.#idKey]);
         if (!target) {
             throw 'ERROR: No corresponding instance found';
         }
         Object.keys(target).forEach((key) => {
-            if (key === 'id__local__') return;
-            if (!this.config.hasOwnProperty(key)) return;
+            if (key === this.#idKey) return;
+            if (!this.keyConfig.hasOwnProperty(key)) return;
             if (data.hasOwnProperty(key) && data[key] !== undefined) {
                 target[key] = data[key];
             }
@@ -195,10 +156,10 @@ export class SimpleJsonData {
         }
         const signMap: any = {};
         instance.forEach((item: any) => {
-            signMap[item.id__local__] = true;
+            signMap[item[this.#idKey]] = true;
         });
-        this.#list__local__ = this.#list__local__.filter((item: any) => {
-            return !signMap[item.id__local__];
+        this.#list = this.#list.filter((item: any) => {
+            return !signMap[item[this.#idKey]];
         });
     }
 }

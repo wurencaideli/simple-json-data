@@ -12,6 +12,7 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "moduleResolution": "NodeNext",
+        "types": ["node"],
         "forceConsistentCasingInFileNames": true
     },
     "include": ["src/**/*"],

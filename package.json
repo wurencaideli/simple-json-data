@@ -1,13 +1,13 @@
 {
     "$schema": "https://json.schemastore.org/tsconfig",
     "name": "simple-json-data",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "description": "A simple json data store.",
     "author": "wuzhanggui",
     "license": "MIT",
     "type": "module",
     "keywords": [
-        "completing attributes"
+        "json"
     ],
     "homepage": "https://github.com/wurencaideli/simple-json-data",
     "repository": {
@@ -51,8 +51,6 @@
         "typescript": "^5.8.3"
     },
     "dependencies": {
-        "fast-sort": "^3.4.1",
-        "fuse.js": "^7.1.0",
         "uuid": "^11.1.0"
     }
 }
